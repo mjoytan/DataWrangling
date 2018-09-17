@@ -1,0 +1,84 @@
+---
+title: "Data Wrangling 3.1"
+author: "Joy Tan"
+date: '2018-09-16'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install Packages
+ 
+```{r setup, include=FALSE}
+library(dyplyr)
+library(plyr)
+library(tidyr)
+```
+
+# Import Data
+
+```{r setup, include=FALSE}
+refine_original_csv <- read_excel("refine.xlsx")
+refine_clean <- refine_original_csv
+```
+
+# Brand Name Clean
+
+```{r setup, include=FALSE}
+refine_clean$company<-str_replace(tolower(refine_clean$company), "phlips", "philips")
+refine_clean$company<-str_replace(tolower(refine_clean$company), "fillips", "philips")
+refine_clean$company<-str_replace(tolower(refine_clean$company), "phillips", "philips")
+refine_clean$company<-str_replace(tolower(refine_clean$company), "phllips", "philips")
+refine_clean$company<-str_replace(tolower(refine_clean$company), "phillps", "philips")
+                              
+refine_clean$company<-str_replace(tolower(refine_clean$company), "akz0", "akzo")
+refine_clean$company<-str_replace(tolower(refine_clean$company), "ak zo", "akzo")
+refine_clean$company<-str_replace(tolower(refine_clean$company), "unilver", "unilever")
+
+```
+
+# Product Code / Number Split
+
+```{r setup, include=FALSE}
+refine_clean <- refine_clean %>%
+  separate(`Product code / number`, c("Product_Code","Number"), sep = "-", remove = FALSE)
+```
+
+# Product Categories
+
+```{r setup, include=FALSE}
+refine_clean <- refine_clean %>%
+  mutate(Product_Code, Product_Category = case_when(Product_Code == "p" ~ "Smartphone", Product_Code == "x" ~ "Laptop", Product_Code == "v" ~ "TV", Product_Code == "q" ~ "Tablet"))
+```
+
+# Full Address
+
+```{r setup, include=FALSE}
+refine_clean <- refine_clean %>%
+  unite("full_address",address,city,country, sep = ", ", remove=FALSE)
+```
+
+# Dummy Variables
+
+```{r setup, include=FALSE}
+
+refine_clean$company_philips <- as.numeric(refine_clean$company == "philips")
+refine_clean$company_akzo <- as.numeric(refine_clean$company == "akzo")
+refine_clean$company_van_houten <- as.numeric(refine_clean$company == "van houten")
+refine_clean$company_unilever <- as.numeric(refine_clean$company == "unilever")
+
+refine_clean$product_smartphone <- as.numeric(refine_clean$Product_Category == "Smartphone")
+refine_clean$product_tv <- as.numeric(refine_clean$Product_Category == "TV")
+refine_clean$product_laptop <- as.numeric(refine_clean$Product_Category == "Laptop")
+refine_clean$product_tablet <- as.numeric(refine_clean$Product_Category == "Tablet")
+
+```
+
+# Write to file
+
+```{r setup, include=FALSE}
+write.csv(refine_clean, "~/Desktop/Capstone/refine_clean.csv")
+```
+
