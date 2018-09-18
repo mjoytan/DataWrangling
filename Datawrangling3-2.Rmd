@@ -1,0 +1,56 @@
+---
+title: "Titanic"
+author: "Joy Tan"
+date: '2018-09-17'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r titanic}
+library(dplyr)
+library(tidyr)
+
+titanic <- read_excel("titanic3.xls")
+
+```
+
+## Port of Embarkation
+```{r titanic, echo=FALSE}
+table(titanic$embarked)
+
+titanic$embarked <- replace(titanic$embarked, which(is.na(titanic$embarked)), 'S')
+
+unique(titanic$embarked)
+```
+## Average Age
+```{r titanic, echo=FALSE}
+titanic <- titanic %>% 
+  mutate( age = as.numeric(ifelse( is.na(age), mean(as.numeric(titanic$age), na.rm = TRUE), paste(age)) ) )
+```
+
+## Has Cabin
+```{r titanic, echo=FALSE}
+has_cabin_number <- ifelse(titanic$cabin == '', 0, 1)
+```
+
+## Lifeboat
+```{r titanic, echo=FALSE}
+titanic$boat[titanic$boat == ''] = 'NA'
+```
+
+## Write File
+``` {r titanic, echo=FALSE}
+write.csv(titanic, "~/Desktop/Capstone/titanic.csv")
+```
+
+
+
